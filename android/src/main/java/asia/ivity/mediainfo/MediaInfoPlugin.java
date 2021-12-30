@@ -93,9 +93,10 @@ public class MediaInfoPlugin implements MethodCallHandler, FlutterPlugin {
     }
 
     if (call.method.equalsIgnoreCase("getMediaInfo")) {
-      String path = (String) call.arguments;
+      String path = (String) call.arguments["path"];
+      boolean isReverse = (boolean) call.arguments["isReverse"];
 
-      handleMediaInfo(applicationContext, path, result);
+      handleMediaInfo(applicationContext, path, isReverse, result);
     } else if (call.method.equalsIgnoreCase("generateThumbnail")) {
       Integer width = call.argument("width");
       Integer height = call.argument("height");
@@ -122,13 +123,13 @@ public class MediaInfoPlugin implements MethodCallHandler, FlutterPlugin {
     }
   }
 
-  private void handleMediaInfo(Context context, String path, Result result) {
+  private void handleMediaInfo(Context context, String path, boolean isReverse, Result result) {
     if (USE_EXOPLAYER) {
       final CompletableFuture<MediaDetail> future = new CompletableFuture<>();
 
       executorService.execute(
           () -> {
-            mainThreadHandler.post(() -> handleMediaInfoExoPlayer(context, path, future));
+            mainThreadHandler.post(() -> handleMediaInfoExoPlayer(context, path, isReverse, future));
 
             try {
               MediaDetail info = future.get();
@@ -170,7 +171,7 @@ public class MediaInfoPlugin implements MethodCallHandler, FlutterPlugin {
   }
 
   private void handleMediaInfoExoPlayer(
-      Context context, String path, CompletableFuture<MediaDetail> future) {
+      Context context, String path, boolean isReverse, CompletableFuture<MediaDetail> future) {
 
     ensureExoPlayer();
     exoPlayer.clearVideoSurface();
@@ -202,7 +203,7 @@ public class MediaInfoPlugin implements MethodCallHandler, FlutterPlugin {
                   int rotation = format.rotationDegrees;
 
                   // Switch the width/height if video was taken in portrait mode
-                  if (rotation == 90 || rotation == 270) {
+                  if (isReverse && (rotation == 90 || rotation == 270)) {
                     int temp = width;
                     //noinspection SuspiciousNameCombination
                     width = height;
@@ -216,7 +217,8 @@ public class MediaInfoPlugin implements MethodCallHandler, FlutterPlugin {
                           format.frameRate,
                           exoPlayer.getDuration(),
                           (short) trackGroups.length,
-                          mimeType);
+                          mimeType,
+                          rotation);
                   future.complete(info);
                   return;
                 } else if (mimeType.contains("audio")) {

@@ -31,8 +31,10 @@
 
 - (void)handleGetMediaInfo:(id)arguments withResult:(FlutterResult)result {
   NSMutableDictionary *d = [NSMutableDictionary dictionary];
-  
-  NSURL *mediaURL = [NSURL fileURLWithPath:arguments];
+
+  NSString *path = arguments[@"path"];
+  Boolean isReverse = [arguments[@"isReverse"] boolValue];
+  NSURL *mediaURL = [NSURL fileURLWithPath: path];
   
   NSString *mime = [IVMediaInfoPlugin mimeTypeForFileAtPath:mediaURL.path];
   
@@ -51,7 +53,8 @@
       // Rotate the video by using a videoComposition and the preferredTransform
       CGAffineTransform _preferredTransform = [self fixTransform:track];
       NSInteger rotationDegrees = (NSInteger)round(radiansToDegrees(atan2(_preferredTransform.b, _preferredTransform.a)));
-      if (rotationDegrees == 90 || rotationDegrees == 270) {
+      // TODO 翻转
+      if (isReverse && (rotationDegrees == 90 || rotationDegrees == 270)) {
           width = track.naturalSize.height;
           height = track.naturalSize.width;
       }
@@ -66,6 +69,8 @@
            forKey:@"durationMs"];
       [d setValue:[NSNumber numberWithInteger:[tracks count]]
            forKey:@"numTracks"];
+      [d setValue:[NSNumber numberWithInteger:rotationDegrees]
+           forKey:@"rotation"];
     } else {
       NSLog(@"[media_info] Can not read: %@", mediaURL);
       result([FlutterError errorWithCode:@"MediaInfo" message:@"InvalidVideo" details:nil]);

@@ -46,7 +46,7 @@ class MediaInfo {
   /// |          | durationMs | durationMs |
   /// |          | numTracks  |            |
   /// |          |            | bitrate    |
-  Future<Map<String, dynamic>> getMediaInfo(String path) async {
+  Future<Map<String, dynamic>> getMediaInfo(String path, {bool isReverse : true}) async {
     final RandomAccessFile file = File(path).openSync();
     final Uint8List headerBytes = file.readSync(defaultMagicNumbersMaxLength);
     final String? mimeType = lookupMimeType(path, headerBytes: headerBytes);
@@ -78,7 +78,7 @@ class MediaInfo {
 
     return (await _methodChannel.invokeMapMethod<String, dynamic>(
       'getMediaInfo',
-      path,
+      {'path': path, 'isReverse': isReverse},
     ))!;
   }
 

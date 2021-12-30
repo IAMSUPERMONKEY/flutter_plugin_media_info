@@ -10,15 +10,17 @@ class VideoDetail implements MediaDetail {
   private final long durationMs;
   private final short numTracks;
   private final String mimeType;
+  private final int rotation;
 
   VideoDetail(
-      int width, int height, float frameRate, long durationMs, short numTracks, String mimeType) {
+      int width, int height, float frameRate, long durationMs, short numTracks, String mimeType, int rotation) {
     this.width = width;
     this.height = height;
     this.frameRate = frameRate;
     this.durationMs = durationMs;
     this.numTracks = numTracks;
     this.mimeType = mimeType;
+    this.rotation = rotation;
   }
 
   @Override
@@ -31,6 +33,7 @@ class VideoDetail implements MediaDetail {
     map.put("durationMs", durationMs);
     map.put("numTracks", (int) numTracks);
     map.put("mimeType", mimeType);
+    map.put("rotation", rotation);
 
     return map;
   }
