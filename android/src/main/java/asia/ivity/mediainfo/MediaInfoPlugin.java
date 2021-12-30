@@ -93,8 +93,8 @@ public class MediaInfoPlugin implements MethodCallHandler, FlutterPlugin {
     }
 
     if (call.method.equalsIgnoreCase("getMediaInfo")) {
-      String path = (String) call.arguments["path"];
-      boolean isReverse = (boolean) call.arguments["isReverse"];
+      String path = (String) call.argument("path");
+      boolean isReverse = (boolean) call.argument("isReverse");
 
       handleMediaInfo(applicationContext, path, isReverse, result);
     } else if (call.method.equalsIgnoreCase("generateThumbnail")) {
